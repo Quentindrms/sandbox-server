@@ -6,6 +6,7 @@ interface Route {
     filePath: string;
     url: string;
     method: "GET" | "POST";
+    contentType: "text/html" | "text/plain" | "text/css" | "text/javascript" | "application/json";
     middleware?: (request: IncomingMessage, response: ServerResponse) => void | boolean | Awaited<void> | Awaited<boolean>
 }
 
@@ -14,17 +15,18 @@ const route: Route[] = [
         filePath: "index.html",
         url: "/",
         method: "GET",
+        contentType: "text/plain",
         middleware: () => console.log("Middleware is working")
     },
     {
-        filePath: "index.html",
-        url: "/test",
+        filePath: "/data/fake.json",
+        contentType: "application/json",
+        url: "/data",
         method: "GET",
     }
 ]
 
 export async function router(request: IncomingMessage, response: ServerResponse) {
-    response.setHeader("Content-Type", "text/html");
     const target = route.find((item) => item.method === request.method && item.url === request.url)
     if (target) {
         if (target.middleware) {
@@ -46,9 +48,10 @@ export async function router(request: IncomingMessage, response: ServerResponse)
 
 async function get(request: IncomingMessage, response: ServerResponse, route: Route) {
     try {
-        const html = await readFile(join(import.meta.dirname, `../../public/${route.filePath}`), "utf8");
+        const data = await readFile(join(import.meta.dirname, `../../public/${route.filePath}`), "utf8");
+        response.setHeader("Content-Type", route.contentType);
         request.statusCode = 200;
-        response.end(html);
+        response.end(data);
     } catch (error) {
         if (error instanceof Error) {
             console.error(error.message);
