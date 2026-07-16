@@ -46,7 +46,7 @@ const route: Route[] = [
     },
 ];
 
-export async function serveStaticFile(
+async function serveStaticFile(
     request: IncomingMessage,
     response: ServerResponse,
 ): Promise<boolean> {
