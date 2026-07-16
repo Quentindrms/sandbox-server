@@ -46,6 +46,13 @@ const route: Route[] = [
     },
 ];
 
+/**
+ * Take the request object and find statics files, load them and return them with the right content type 
+ * @param request IncomingMessage object 
+ * @param response ServerResponse object 
+ * @returns Promise boolean
+ */
+
 async function serveStaticFile(
     request: IncomingMessage,
     response: ServerResponse,
@@ -72,6 +79,12 @@ async function serveStaticFile(
         return false;
     }
 }
+/**
+ * Check if the the current URL is part of the route array, if not serve static file or throw an error to the client 
+ * @param request 
+ * @param response 
+ * @returns 
+ */
 
 export async function router(
     request: IncomingMessage,
@@ -103,6 +116,17 @@ export async function router(
     );
     response.end(html);
 }
+
+/**
+ * 
+ * @param request 
+ * @param response 
+ * @param route 
+ */
+
+/** 
+ * TODO: Modifier la méthode pour ne servir que des fichiers se trouvant côté serveur et plus côté client
+ */
 
 async function get(
     request: IncomingMessage,
