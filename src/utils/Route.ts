@@ -32,10 +32,10 @@ export async function router(request: IncomingMessage, response: ServerResponse)
         if (target.middleware) {
             target.middleware(request, response)
         }
-        if (target.method === "GET") {
+        else if (target.method === "GET") {
             get(request, response, target)
         }
-        if (target.method === "POST") {
+        else if (target.method === "POST") {
             post(request, response, target);
         }
     }
@@ -56,6 +56,7 @@ async function get(request: IncomingMessage, response: ServerResponse, route: Ro
         if (error instanceof Error) {
             console.error(error.message);
             const html = await readFile(join(import.meta.dirname, `../../public/errors/500.html`), "utf8");
+            response.statusCode = 500;
             response.end(html)
         }
     }
