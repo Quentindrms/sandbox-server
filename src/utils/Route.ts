@@ -1,7 +1,6 @@
 import { readFile, stat } from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { extname, join, normalize } from "node:path";
-import testMiddleware from "../middleware/test";
 
 interface Route {
     filePath?: string;
@@ -37,7 +36,6 @@ const route: Route[] = [
         url: "/",
         method: "GET",
         contentType: "text/html",
-        middleware: testMiddleware,
     },
     {
         filePath: "",
