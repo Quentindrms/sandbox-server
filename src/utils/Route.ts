@@ -1,9 +1,10 @@
 import { readFile, stat } from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { extname, join, normalize } from "node:path";
+import testMiddleware from "../middleware/test";
 
 interface Route {
-    filePath: string;
+    filePath?: string;
     url: string;
     method: "GET" | "POST";
     contentType:
@@ -36,7 +37,13 @@ const route: Route[] = [
         url: "/",
         method: "GET",
         contentType: "text/html",
-        middleware: () => console.log("Middleware is working"),
+        middleware: testMiddleware,
+    },
+    {
+        filePath: "",
+        url: "/",
+        method: "POST",
+        contentType: "application/json",
     },
     {
         filePath: "/data/fake.json",
@@ -44,6 +51,11 @@ const route: Route[] = [
         url: "/data",
         method: "GET",
     },
+    {
+        contentType: "application/json",
+        url: "/test",
+        method: "GET",
+    }
 ];
 
 /**
@@ -134,13 +146,17 @@ async function get(
     route: Route,
 ) {
     try {
-        const data = await readFile(
-            join(import.meta.dirname, `../../public/${route.filePath}`),
-            "utf8",
-        );
         response.setHeader("Content-Type", route.contentType);
         request.statusCode = 200;
-        response.end(data);
+
+        if (route.filePath) {
+            const data = await readFile(
+                join(import.meta.dirname, `../../public/${route.filePath}`),
+                "utf8",
+            );
+            response.end(data);
+        }
+        response.end("ok");
     } catch (error) {
         if (error instanceof Error) {
             console.error(error.message);
@@ -158,4 +174,28 @@ function post(
     request: IncomingMessage,
     response: ServerResponse,
     route: Route,
-) { }
+) {
+    const chunks: Buffer[] = []
+    request.on("data", (chunk: Buffer) => {
+        chunks.push(chunk);
+    })
+    request.on("end", () => {
+        try {
+            const body = Buffer.concat(chunks).toString("utf-8");
+            if (!body) {
+                response.end()
+                return;
+            };
+            console.log(body)
+            const parsed = JSON.parse(body);
+            response.setHeader("Content-Type", "application/json")
+            response.end(JSON.stringify(parsed));
+        } catch (error) {
+            if (error instanceof Error) {
+                console.trace(error.message)
+                response.end("An error as occured")
+            }
+        }
+
+    })
+}
