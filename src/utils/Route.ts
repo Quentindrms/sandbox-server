@@ -153,6 +153,7 @@ async function get(
                 "utf8",
             );
             response.end(data);
+            return;
         }
         response.end("ok");
     } catch (error) {
@@ -184,7 +185,6 @@ function post(
                 response.end()
                 return;
             };
-            console.log(body)
             const parsed = JSON.parse(body);
             response.setHeader("Content-Type", "application/json")
             response.end(JSON.stringify(parsed));
